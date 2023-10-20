@@ -93,6 +93,52 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name: "diff",
+				Usage: "Show the difference between two files",
+				UsageText: "dotenv diff -f [path to file] -c [path to comparable file]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "path",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
+					&cli.StringFlag{Name: "comparable",Usage: "Path to the `comparable file`",Aliases: []string{"c"},},
+				},
+				Action: func(c *cli.Context) error {
+					if c.String("path") == "" || c.String("comparable") == "" {
+						return cli.Exit("Path and comparable are required", 1)
+					}
+
+					e := dotenv.Load(c.String("path"))
+					k := dotenv.Load(c.String("comparable"))
+
+					for _, k := range e.DiffKeys(k) {
+						fmt.Println(k)
+					}
+
+					return nil
+				},
+			},
+			{
+				Name: "merge",
+				Usage: "Merge file 2 into file 1",
+				UsageText: "dotenv merge -f [file to merge into] -c [file to merge from]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "path",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
+					&cli.StringFlag{Name: "comparable",Usage: "Path to the `comparable file`",Aliases: []string{"c"},},
+					&cli.BoolFlag{Name: "overwrite",Usage: "Overwrite the values of existing keys",Aliases: []string{"o"}, Value: false},
+				},
+				Action: func(c *cli.Context) error {
+					if c.String("path") == "" || c.String("comparable") == "" {
+						return cli.Exit("Path and comparable are required", 1)
+					}
+
+					e := dotenv.Load(c.String("path"))
+					k := dotenv.Load(c.String("comparable"))
+
+					e.Merge(k, c.Bool("overwrite"))
+					e.Save()
+
+					return nil
+				},
+			},
 		},
 	}
 
