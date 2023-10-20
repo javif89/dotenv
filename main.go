@@ -32,12 +32,28 @@ func (e *EnvFile) Keys() []string {
 
 func (e *EnvFile) Add(key string, value string) {
 	key = standardizeKey(key)
+
+	envVal := newValue("","")
+
+	// Check if the value has a comment attached
+	if strings.Contains(value, "#") {
+		split := strings.Split(value, "#")
+		value = split[0]
+		envVal.Comment = cleanString(split[1])
+		envVal.HasComment = true
+	}
+
 	value = cleanString(value)
+
 	if e.Has(key) {
 		e.Set(key, value)
 		return
 	}
-	e.Values = append(e.Values, newValue(key, value))
+
+	envVal.Key = key
+	envVal.Value = value
+
+	e.Values = append(e.Values, envVal)
 }
 
 func (e *EnvFile) Remove(key string) {
@@ -153,7 +169,7 @@ func (e *EnvFile) Save() {
 		if v.IsComment {
 			file.WriteString(v.Value + "\n")
 		} else {
-			file.WriteString(v.Key + "=" + formatValueForPrint(v.Value) + "\n")
+			file.WriteString(v.Key + "=" + formatValueForPrint(v.Value, v.Comment) + "\n")
 		}
 	}
 }

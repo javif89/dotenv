@@ -26,11 +26,16 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-func formatValueForPrint(s string) string {
+func formatValueForPrint(s string, comment string) string {
 	s = cleanString(s)
 	// If it's multiple words add quotes
 	if strings.Contains(s, " ") || strings.Contains(s, "-") || strings.Contains(s, "+") {
 		s = "\"" + s + "\""
 	}
+
+	if comment != "" {
+		s += " # " + comment
+	}
+
 	return s
 }

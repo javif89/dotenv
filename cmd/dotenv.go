@@ -80,6 +80,19 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name: "fmt",
+				Usage: "Format the env file and fix any issues",
+				UsageText: "dotenv fmt -f [path to file]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "path",Value: "./.env",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
+				},
+				Action: func(c *cli.Context) error {
+					file := dotenv.Load(c.String("path"))
+					file.Save()
+					return nil
+				},
+			},
 		},
 	}
 
