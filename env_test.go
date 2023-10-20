@@ -1,10 +1,72 @@
 package dotenv
 
 import (
-	"testing"
-	"reflect"
 	"os"
+	"reflect"
+	"testing"
 )
+
+func TestDiffKeys(t *testing.T) {
+	e := EnvFile{}
+	e.Add("test", "test")
+	e.Add("test2", "test2")
+
+	comparable := EnvFile{}
+	comparable.Add("test", "test")
+	comparable.Add("test2", "test2")
+	comparable.Add("test3", "test3")
+
+	keys := e.DiffKeys(&comparable)
+	if len(keys) != 1 {
+		t.Errorf("Expected length of 1, got %d", len(keys))
+	}
+
+	if keys[0] != "TEST3" {
+		t.Errorf("Expected key to be TEST3, got %s", keys[0])
+	}
+}
+
+func TestMergeNoOverwrite(t *testing.T) {
+	e := EnvFile{}
+	e.Add("test", "test")
+	e.Add("test2", "test2")
+
+	comparable := EnvFile{}
+	comparable.Add("test", "test")
+	comparable.Add("test2", "test2")
+	comparable.Add("test3", "test3")
+
+	e.Merge(&comparable, false)
+	if len(e.Values) != 3 {
+		t.Errorf("Expected length of 3, got %d", len(e.Values))
+	}
+
+	if e.Values[2].Key != "TEST3" {
+		t.Errorf("Expected key to be TEST3, got %s", e.Values[2].Key)
+	}
+}
+
+func TestMergeOverwrite(t *testing.T) {
+	e := EnvFile{}
+	e.Add("test", "test")
+	e.Add("test2", "test2")
+
+	comparable := EnvFile{}
+	comparable.Add("test", "overwritten")
+	comparable.Add("test2", "overwritten")
+	comparable.Add("test3", "overwritten")
+
+	e.Merge(&comparable, true)
+	if len(e.Values) != 3 {
+		t.Errorf("Expected length of 3, got %d", len(e.Values))
+	}
+
+	for _, v := range e.Values {
+		if v.Value != "overwritten" {
+			t.Errorf("Expected value to be overwritten, got %s", v.Value)
+		}
+	}
+}
 
 func TestAdd(t *testing.T) {
 	e := EnvFile{}
@@ -127,7 +189,7 @@ func TestNew(t *testing.T) {
 func setupFile(lines []string) *os.File {
 	f, _ := os.CreateTemp("", ".env")
 	for _, l := range lines {
-		f.WriteString(l+"\n")
+		f.WriteString(l + "\n")
 	}
 	return f
 }
@@ -150,7 +212,7 @@ func TestLoad(t *testing.T) {
 	if e.Values[0].Key != "TEST" {
 		t.Errorf("Expected key to be TEST, got %s", e.Values[0].Key)
 	}
-	
+
 	if e.Path != f.Name() {
 		t.Errorf("Expected path to be %s, got %s", f.Name(), e.Path)
 	}
@@ -214,7 +276,7 @@ func TestSaveWithComment(t *testing.T) {
 
 	e := Load(f.Name())
 	e.AddComment("comment")
-	
+
 	e.Save()
 
 	e = Load(f.Name())

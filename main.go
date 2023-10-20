@@ -7,16 +7,16 @@ import (
 )
 
 type EnvValue struct {
-	Key string
-	Value string
-	IsComment bool
+	Key        string
+	Value      string
+	IsComment  bool
 	HasComment bool
-	Comment string
+	Comment    string
 }
 
 type EnvFile struct {
 	Values []EnvValue
-	Path string
+	Path   string
 }
 
 func (e *EnvFile) Keys() []string {
@@ -33,7 +33,7 @@ func (e *EnvFile) Keys() []string {
 func (e *EnvFile) Add(key string, value string) {
 	key = standardizeKey(key)
 
-	envVal := newValue("","")
+	envVal := newValue("", "")
 
 	// Check if the value has a comment attached
 	if strings.Contains(value, "#") {
@@ -99,6 +99,33 @@ func (e *EnvFile) AddComment(comment string) {
 	val := newValue("", comment)
 	val.IsComment = true
 	e.Values = append(e.Values, val)
+}
+
+func (e *EnvFile) DiffKeys(comparable *EnvFile) []string {
+	diff := []string{}
+	// TODO: Inneficient but we'll do this for now
+	for _, k := range comparable.Keys() {
+		if !e.Has(k) {
+			diff = append(diff, k)
+		}
+	}
+
+	return diff
+}
+
+func (e *EnvFile) Merge(comparable *EnvFile, overwrite bool) {
+	var keys []string
+
+	switch {
+	case overwrite:
+		keys = comparable.Keys()
+	default:
+		keys = e.DiffKeys(comparable)
+	}
+
+	for _, k := range keys {
+		e.Set(k, comparable.Get(k))
+	}
 }
 
 func New(path string) *EnvFile {
@@ -180,10 +207,10 @@ func (e *EnvFile) Save() {
 
 func newValue(key string, value string) EnvValue {
 	return EnvValue{
-		Key: key, 
-		Value: value,
-		IsComment: false,
+		Key:        key,
+		Value:      value,
+		IsComment:  false,
 		HasComment: false,
-		Comment: "",
+		Comment:    "",
 	}
 }

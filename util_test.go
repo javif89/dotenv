@@ -23,11 +23,11 @@ func TestStandardizeKey(t *testing.T) {
 }
 
 type formatForPrintTest struct {
-    arg1, arg2, expected string
+	arg1, arg2, expected string
 }
 
 var formatForPrintTests = []formatForPrintTest{
-    {"test", "", "test"},
+	{"test", "", "test"},
 	{"test", "comment", "test # comment"},
 	{"test test", "", "\"test test\""},
 	{"test test", "comment", "\"test test\" # comment"},
