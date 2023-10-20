@@ -64,6 +64,22 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name: "keys",
+				Aliases: []string{"k"},
+				Usage: "List all the keys in a file",
+				UsageText: "dotenv keys -f [path to file]",
+				Flags: []cli.Flag{
+					&cli.StringFlag{Name: "path",Value: "./.env",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
+				},
+				Action: func(c *cli.Context) error {
+					file := dotenv.Load(c.String("path"))
+					for _, k := range file.Keys() {
+						fmt.Println(k)
+					}
+					return nil
+				},
+			},
 		},
 	}
 

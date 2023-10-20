@@ -9,11 +9,25 @@ import (
 type EnvValue struct {
 	Key string
 	Value string
+	IsComment bool
+	HasComment bool
+	Comment string
 }
 
 type EnvFile struct {
 	Values []EnvValue
 	Path string
+}
+
+func (e *EnvFile) Keys() []string {
+	keys := []string{}
+	for _, v := range e.Values {
+		if v.IsComment {
+			continue
+		}
+		keys = append(keys, v.Key)
+	}
+	return keys
 }
 
 func (e *EnvFile) Add(key string, value string) {
@@ -23,7 +37,7 @@ func (e *EnvFile) Add(key string, value string) {
 		e.Set(key, value)
 		return
 	}
-	e.Values = append(e.Values, EnvValue{Key: key, Value: value})
+	e.Values = append(e.Values, newValue(key, value))
 }
 
 func (e *EnvFile) Remove(key string) {
@@ -61,25 +75,10 @@ func (e *EnvFile) Set(key string, value string) {
 	}
 }
 
-func (e *EnvFile) Save() {
-	// Check if file exists if not create it
-	if _, err := os.Stat(e.Path); os.IsNotExist(err) {
-		file, err := os.Create(e.Path)
-		if err != nil {
-			panic(err)
-		}
-		file.Close()
-	}
-
-	file, err := os.OpenFile(e.Path, os.O_WRONLY|os.O_TRUNC, 0755)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	for _, v := range e.Values {
-		file.WriteString(v.Key + "=" + formatValueForPrint(v.Value) + "\n")
-	}
+func (e *EnvFile) AddComment(comment string) {
+	val := newValue("", comment)
+	val.IsComment = true
+	e.Values = append(e.Values, val)
 }
 
 func New(path string) *EnvFile {
@@ -106,16 +105,25 @@ func Load(path string) *EnvFile {
 	env := EnvFile{Path: path}
 
 	for scanner.Scan() {
-		if scanner.Text() == "" {
+		line := scanner.Text()
+		if line == "" {
 			continue
 		}
 
-		kv := strings.Split(scanner.Text(), "=")
+		kv := strings.Split(line, "=")
 
-		if len(kv) != 2 {
+		// Check if it's a comment
+		if len(kv) == 1 && strings.HasPrefix(kv[0], "#") {
+			env.AddComment(kv[0])
 			continue
 		}
 
+		// Not sure how this would happen but let's do it just in case
+		if len(kv) < 2 {
+			continue
+		}
+
+		// We should have a key and a value
 		key := kv[0]
 		value := kv[1]
 
@@ -123,4 +131,39 @@ func Load(path string) *EnvFile {
 	}
 
 	return &env
+}
+
+func (e *EnvFile) Save() {
+	// Check if file exists if not create it
+	if _, err := os.Stat(e.Path); os.IsNotExist(err) {
+		file, err := os.Create(e.Path)
+		if err != nil {
+			panic(err)
+		}
+		file.Close()
+	}
+
+	file, err := os.OpenFile(e.Path, os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	for _, v := range e.Values {
+		if v.IsComment {
+			file.WriteString(v.Value + "\n")
+		} else {
+			file.WriteString(v.Key + "=" + formatValueForPrint(v.Value) + "\n")
+		}
+	}
+}
+
+func newValue(key string, value string) EnvValue {
+	return EnvValue{
+		Key: key, 
+		Value: value,
+		IsComment: false,
+		HasComment: false,
+		Comment: "",
+	}
 }
