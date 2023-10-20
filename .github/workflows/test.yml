@@ -25,7 +25,6 @@ jobs:
       run: go test -coverprofile=coverage.out ./...
       env:
         GOCACHE: /tmp/.cache/go-build
-        GOPATH: ${{ github.workspace }}
 
     - name: Check coverage
       run: |
