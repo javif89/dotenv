@@ -25,4 +25,4 @@ jobs:
         cd ./cmd
         go mod tidy
     - name: Build
-      run: go build -v ./cmd -o ./build
+      run: go build -o ./dotenv -v
