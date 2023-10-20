@@ -16,6 +16,8 @@ func cleanString(s string) string {
 func standardizeKey(s string) string {
 	s = cleanString(s)
 	s = strings.ReplaceAll(s, " ", "_")
+	s = strings.ReplaceAll(s, "-", "_")
+	s = strings.ReplaceAll(s, "+", "_")
 	s = strings.ToUpper(s)
 
 	return s

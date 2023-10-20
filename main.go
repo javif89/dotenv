@@ -46,7 +46,11 @@ func (e *EnvFile) Add(key string, value string) {
 	value = cleanString(value)
 
 	if e.Has(key) {
-		e.Set(key, value)
+		for i, v := range e.Values {
+			if v.Key == key {
+				e.Values[i].Value = value
+			}
+		}
 		return
 	}
 
@@ -57,6 +61,7 @@ func (e *EnvFile) Add(key string, value string) {
 }
 
 func (e *EnvFile) Remove(key string) {
+	key = standardizeKey(key)
 	for i, v := range e.Values {
 		if v.Key == key {
 			e.Values = append(e.Values[:i], e.Values[i+1:]...)
@@ -84,14 +89,13 @@ func (e *EnvFile) Get(key string) string {
 }
 
 func (e *EnvFile) Set(key string, value string) {
-	for i, v := range e.Values {
-		if v.Key == key {
-			e.Values[i].Value = cleanString(value)
-		}
-	}
+	e.Add(key, value)
 }
 
 func (e *EnvFile) AddComment(comment string) {
+	if !strings.HasPrefix(comment, "#") {
+		comment = "# " + comment
+	}
 	val := newValue("", comment)
 	val.IsComment = true
 	e.Values = append(e.Values, val)
