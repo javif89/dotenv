@@ -1,0 +1,36 @@
+name: Run tests and check coverage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.21
+
+    - name: Install dependencies
+      run: go mod tidy
+
+    - name: Run tests with coverage
+      run: go test -coverprofile=coverage.out ./...
+      env:
+        GOCACHE: /tmp/.cache/go-build
+        GOPATH: ${{ github.workspace }}
+
+    - name: Check coverage
+      run: |
+        coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        if [ $coverage -lt 90 ]; then
+          echo "Coverage is less than 90% ($coverage%), failing the build"
+          exit 1
+        fi
