@@ -2,19 +2,16 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/javif89/dotenv"
 	"github.com/urfave/cli/v2"
-
-	// "github.com/javif89/dotenv"
 	"log"
 	"os"
 )
 
 func main() {
 	app := &cli.App{
-		Name: "dotenv",
-		Usage: "Create and manipulate .env files in your system",
+		Name:      "dotenv",
+		Usage:     "Create and manipulate .env files in your system",
 		UsageText: "dotenv [path to file] command [command options]",
 		Authors: []*cli.Author{
 			{
@@ -23,14 +20,14 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			{
-				Name: "set",
-				Aliases: []string{"s"},
-				Usage: "Set an environment variable",
+				Name:      "set",
+				Aliases:   []string{"s"},
+				Usage:     "Set an environment variable",
 				UsageText: "dotenv set -f [path to file] -k [key] -v [value]",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "path",Value: "./.env",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
-					&cli.StringFlag{Name: "key",Value: "",Usage: "Key to set",Aliases: []string{"k"},},
-					&cli.StringFlag{Name: "value",Value: "",Usage: "Value to set",Aliases: []string{"v"},},
+					&cli.StringFlag{Name: "path", Value: "./.env", Usage: "Path to the `file`", Aliases: []string{"p", "f"}},
+					&cli.StringFlag{Name: "key", Value: "", Usage: "Key to set", Aliases: []string{"k"}},
+					&cli.StringFlag{Name: "value", Value: "", Usage: "Value to set", Aliases: []string{"v"}},
 				},
 				Action: func(c *cli.Context) error {
 					// Validate parameters
@@ -45,13 +42,13 @@ func main() {
 				},
 			},
 			{
-				Name: "get",
-				Aliases: []string{"g"},
-				Usage: "Get the value of a key in a file",
+				Name:      "get",
+				Aliases:   []string{"g"},
+				Usage:     "Get the value of a key in a file",
 				UsageText: "dotenv get -f [path to file] -k [key]",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "path",Value: "./.env",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
-					&cli.StringFlag{Name: "key",Value: "",Usage: "Key to set",Aliases: []string{"k"},},
+					&cli.StringFlag{Name: "path", Value: "./.env", Usage: "Path to the `file`", Aliases: []string{"p", "f"}},
+					&cli.StringFlag{Name: "key", Value: "", Usage: "Key to set", Aliases: []string{"k"}},
 				},
 				Action: func(c *cli.Context) error {
 					// Validate parameters
@@ -65,12 +62,12 @@ func main() {
 				},
 			},
 			{
-				Name: "keys",
-				Aliases: []string{"k"},
-				Usage: "List all the keys in a file",
+				Name:      "keys",
+				Aliases:   []string{"k"},
+				Usage:     "List all the keys in a file",
 				UsageText: "dotenv keys -f [path to file]",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "path",Value: "./.env",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
+					&cli.StringFlag{Name: "path", Value: "./.env", Usage: "Path to the `file`", Aliases: []string{"p", "f"}},
 				},
 				Action: func(c *cli.Context) error {
 					file := dotenv.Load(c.String("path"))
@@ -81,11 +78,11 @@ func main() {
 				},
 			},
 			{
-				Name: "fmt",
-				Usage: "Format the env file and fix any issues",
+				Name:      "fmt",
+				Usage:     "Format the env file and fix any issues",
 				UsageText: "dotenv fmt -f [path to file]",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "path",Value: "./.env",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
+					&cli.StringFlag{Name: "path", Value: "./.env", Usage: "Path to the `file`", Aliases: []string{"p", "f"}},
 				},
 				Action: func(c *cli.Context) error {
 					file := dotenv.Load(c.String("path"))
@@ -94,12 +91,12 @@ func main() {
 				},
 			},
 			{
-				Name: "diff",
-				Usage: "Show the difference between two files",
+				Name:      "diff",
+				Usage:     "Show the difference between two files",
 				UsageText: "dotenv diff -f [path to file] -c [path to comparable file]",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "path",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
-					&cli.StringFlag{Name: "comparable",Usage: "Path to the `comparable file`",Aliases: []string{"c"},},
+					&cli.StringFlag{Name: "path", Usage: "Path to the `file`", Aliases: []string{"p", "f"}},
+					&cli.StringFlag{Name: "comparable", Usage: "Path to the `comparable file`", Aliases: []string{"c"}},
 				},
 				Action: func(c *cli.Context) error {
 					if c.String("path") == "" || c.String("comparable") == "" {
@@ -117,13 +114,13 @@ func main() {
 				},
 			},
 			{
-				Name: "merge",
-				Usage: "Merge file 2 into file 1",
+				Name:      "merge",
+				Usage:     "Merge file 2 into file 1",
 				UsageText: "dotenv merge -f [file to merge into] -c [file to merge from]",
 				Flags: []cli.Flag{
-					&cli.StringFlag{Name: "path",Usage: "Path to the `file`",Aliases: []string{"p", "f"},},
-					&cli.StringFlag{Name: "comparable",Usage: "Path to the `comparable file`",Aliases: []string{"c"},},
-					&cli.BoolFlag{Name: "overwrite",Usage: "Overwrite the values of existing keys",Aliases: []string{"o"}, Value: false},
+					&cli.StringFlag{Name: "path", Usage: "Path to the `file`", Aliases: []string{"p", "f"}},
+					&cli.StringFlag{Name: "comparable", Usage: "Path to the `comparable file`", Aliases: []string{"c"}},
+					&cli.BoolFlag{Name: "overwrite", Usage: "Overwrite the values of existing keys", Aliases: []string{"o"}, Value: false},
 				},
 				Action: func(c *cli.Context) error {
 					if c.String("path") == "" || c.String("comparable") == "" {
