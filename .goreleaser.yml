@@ -1,16 +1,17 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 
 builds:
-  main: ./cmd/
-  binary: dotenv
-  goos:
-    - darwin
-    - linux
-  goarch:
-    - amd64
-    - arm64
-  env:
-    - CGO_ENABLED=0
+  -
+    main: ./cmd/
+    binary: dotenv
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
 
 release:
   prerelease: auto
