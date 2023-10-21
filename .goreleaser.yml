@@ -20,6 +20,7 @@ brews:
     commit_author:
       name: javif89
       email: javierfelizweb@gmail.com
+    folder: Formula
 
 release:
   prerelease: auto
