@@ -10,6 +10,17 @@ builds:
     env:
       - CGO_ENABLED=0
 
+brews:
+  -
+    name: dotenv
+    homepage: https://github.com/javif89/dotenv
+    tap:
+      owner: javif89
+      name: homebrew-javif89
+    commit_author:
+      name: javif89
+      email: javierfelizweb@gmail.com
+
 release:
   prerelease: auto
 
